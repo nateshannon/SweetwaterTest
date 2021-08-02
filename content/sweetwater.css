@@ -1,5 +1,5 @@
 body {
-    background-color:#aaa;
+    background-color:#ccc;
 }
 
 .sweetwaterLogoType {
@@ -10,6 +10,27 @@ body {
 
 .subtleShadow {
     text-shadow: 5px 5px 12px #999,
+                 0px 1px 0px #fff,
+                 1px 0px 0px #fff,
+                 0px -1px 0px #fff,
+                 -1px 0px 0px #fff;
+}
+
+.bodyParagraph {
+    text-align: left; 
+    font-weight: 400; 
+    font-family: 'Montserrat', sans-serif;
+}
+
+.pageHeading {
+    margin-bottom:25px;
+}
+
+.bodySection {
+    background-color:#fff;
+    padding:15px;
+    border-radius: 10px;
+    box-shadow: 4px 4px 12px #999,
                  0px 1px 0px #fff,
                  1px 0px 0px #fff,
                  0px -1px 0px #fff,
