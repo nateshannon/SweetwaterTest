@@ -1,0 +1,17 @@
+body {
+    background-color:#aaa;
+}
+
+.sweetwaterLogoType {
+    color: #0172B9;
+    text-decoration: underline;
+    text-decoration-color: #D61721;
+}
+
+.subtleShadow {
+    text-shadow: 5px 5px 12px #999,
+                 0px 1px 0px #fff,
+                 1px 0px 0px #fff,
+                 0px -1px 0px #fff,
+                 -1px 0px 0px #fff;
+}
