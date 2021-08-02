@@ -12,6 +12,11 @@
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Cinzel+Decorative:wght@400;700;900&family=Cutive&family=Fontdiner+Swanky&family=Fredoka+One&family=Lancelot&family=Lato:wght@300;400;700;900&family=Libre+Barcode+128+Text&family=Libre+Barcode+39+Text&family=Libre+Barcode+EAN13+Text&family=Montserrat+Subrayada:wght@400;700&family=Montserrat:wght@300;400;700;900&family=Mr+Dafoe&family=Oswald:wght@200;400;700&family=Pattaya&family=Permanent+Marker&family=Solway:wght@700;800&display=swap" rel="stylesheet">
         <link href="content/sweetwater.css" rel="stylesheet">
+        <script type="text/javascript">
+            function navClick(page) {
+                location.href = page;
+            }
+        </script>
         
         <meta charset="UTF-8">
         <title><?=$pageTitle; ?></title>

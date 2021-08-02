@@ -1,5 +1,6 @@
 <?php
 $pageTitle = "Sweetwater Comment Post-Processor";
+$currentNavButton = "home";
 
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/conn.php');
@@ -8,19 +9,14 @@ require_once(__DIR__ . '/header.php');
 
     <div class="px-4 py-4 my-4 text-center">
         <div class="row">
-            <div class="col-lg-3">     
+            <div class="col-lg-2">     
                 
             </div>
-            <div class="col-lg-6">
-
+            <div class="col-lg-8">
                 
-                <p class="text-left">
-                    <button type="button" class="btn btn-dark sweetwaterLogoType" style="font-weight: 700; font-family: 'Permanent Marker', cursive;">Home</button> 
-                    <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;">Search</button> 
-                    <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;">Manage Candy</button> 
-                    <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;">Manage People</button>
-                    <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;">Meta Data</button>
-                </p>
+                <?php                
+                require_once(__DIR__ . '/navmenu.php');
+                ?>
                 
                 <h1 class="subtleShadow pageHeading" style="text-align: left; font-weight: 700; font-family: 'Oswald', sans-serif;"><span class="sweetwaterLogoType">Sweetwater</span> Order Comments</h1>
                 
@@ -33,7 +29,7 @@ require_once(__DIR__ . '/header.php');
                 
 
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 
             </div>
         </div>
