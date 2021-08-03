@@ -1,5 +1,5 @@
 <?php
-$pageTitle = "Sweetwater Comment Post-Processor";
+$pageTitle = "Sweetwater Order Comments";
 $currentNavButton = "home";
 
 require_once(__DIR__ . '/config.php');

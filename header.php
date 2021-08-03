@@ -16,6 +16,11 @@
             function navClick(page) {
                 location.href = page;
             }
+            function navClickConfirm(page, prompt) {
+                if (confirm(prompt)) {
+                    location.href = page;
+                }
+            }
         </script>
         
         <meta charset="UTF-8">
