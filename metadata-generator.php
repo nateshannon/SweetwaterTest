@@ -8,6 +8,15 @@ $row_sentences = "";
 $row_shipdate_expected = "";
 $row_id = -1;
 
+$metadata = array(
+    "call_wanted" => "0",
+    "require_signature" => "0",
+    "expected_ship_date" => "0000-00-00",
+    "candy_assoc" => array(),
+    "people_assoc" => array()
+    );
+
+
 
 //Load Comment Record
 if (!empty($_GET)) {
@@ -46,6 +55,8 @@ if (count($expected_ship_date_split) > 1) {
     
     $expected_ship_date = getdate(strtotime(trim($date_part_split[0])));
     
+    $metadata["expected_ship_date"] = strval($expected_ship_date["year"]) . "-" . str_pad(strval($expected_ship_date["mon"]), 2, "0", STR_PAD_LEFT) . "-" . str_pad(strval($expected_ship_date["mday"]), 2, "0", STR_PAD_LEFT);
+    
     //print_debug($expected_ship_date);
         
     //detect if database has been updated
@@ -82,6 +93,12 @@ for ($x = 0; $x < count($row_sentences); $x++) {
 }
 echo "Call Decision: " . $callpositive;
 
+if ($callpositive <= 0) {
+    $metadata["call_wanted"] = "0";
+} else {
+    $metadata["call_wanted"] = "1";
+}
+
 echo "<hr>";
 //no sig
 //30021238
@@ -105,6 +122,11 @@ for ($x = 0; $x < count($row_sentences); $x++) {
 }
 echo "Signature Decision: " . $sigpositive;
 
+if ($sigpositive <= 0) {
+    $metadata["require_signature"] = "0";
+} else {
+    $metadata["require_signature"] = "1";
+}
 
 echo "<hr>";
 
@@ -135,12 +157,14 @@ for ($c = 0; $c < count($candies); $c++) {
     if (exact_search($candies[$c]['name'], $row_comments)) {
         // exact match found
         echo $candies[$c]['name'] . " located exactly.<br>";
+        $metadata["candy_assoc"][] = $candies[$c];
         // CREATE ASSOCIATION orderid <-> candyid
     } else {
         // exact match NOT found
         if (metaphone_search($candies[$c]['name'], $row_comments)) {
             // metaphone match found
             echo $candies[$c]['name'] . " located by metaphone.<br>";
+            $metadata["candy_assoc"][] = $candies[$c];
             // CREATE ASSOCIATION orderid <-> candyid
         } else {
             // no match found
@@ -179,27 +203,26 @@ if (isset($nameMatches[0])) {
     for ($m = 0; $m < count($nameMatches[0]); $m++) {
         $matchedName = $nameMatches[0][$m][0];
         $matchedName = exclude_words($matchedName);
-        //$matchedName = $matchedName . "....";
-        
-        if ($matchedName != "") {
-            if ($nameMatches[0][$m][0] != $matchedName) {
-                $temp = preg_replace("/(^\W*|\W*$)/", "", $matchedName);
-                $matchedName = $temp;
-            }
-            //echo "name: " . $nameMatches[0][$m][0] . " => " . $matchedName . ";<br>";
+        //if (strtoupper($matchedName) != "I" && strtoupper($matchedName) != "A") {
             
+            if ($matchedName != "") {
+                if ($nameMatches[0][$m][0] != $matchedName) {
+                    $temp = preg_replace("/(^\W*|\W*$)/", "", $matchedName);
+                    $matchedName = $temp;
+                }
+                if (strtoupper($matchedName) != "I" && strtoupper($matchedName) != "A") {
+                    echo "name: " . $nameMatches[0][$m][0] . " => " . $matchedName . ";<br>";
 
-            
-            $personId = ensure_person_exists($matchedName, TRUE, TRUE, $conn); // check against system
-            if ($personId == -1) {
-                $personId = ensure_person_exists($matchedName, TRUE, FALSE, $conn); // check against auto-gen
-            }
-            echo "<br>Person Id: " . $personId . "<br>";
-            
-            
-            
-        }       
-        
+                    $personId = ensure_person_exists($matchedName, TRUE, TRUE, $conn); // check against system
+                    if ($personId == -1) {
+                        $personId = ensure_person_exists($matchedName, TRUE, FALSE, $conn); // check against auto-gen
+                    }
+                    echo "<br>Person Id: " . $personId . "<br>";
+                }
+                
+
+            }       
+        //}
     }
     
 }
@@ -264,14 +287,24 @@ for ($c = 0; $c < count($people); $c++) {
     
     if ($found_person != "") {
         echo "<hr>Refer Distance: ";
-        $temp = person_subject_assoc_distance($row_comments, $found_person, array("refer", "recommend", "told", "heard", "swears by"));
-        echo $temp['distance'] . " (" . $temp['keyword'] . ")";
+        $refer_info = person_subject_assoc_distance($row_comments, $found_person, array("refer", "recommend", "told", "heard", "swears by"));
+        echo $refer_info['distance'] . " (" . $refer_info['keyword'] . ")";
 
+        
+        // find shortest distance
+        // insert relationship based on shortest distance
+        //create_people_assoc_record(int $orderId, int $personId, int $relationType);
+        
+        
         echo "<hr>";
         
         echo "<hr>Sales Distance: ";
-        $temp = person_subject_assoc_distance($row_comments, $found_person, array("sales", "engineer", "rep", "credit", "commission", "thank you", "attn", "help", "client"));
-        echo $temp['distance'] . " (" . $temp['keyword'] . ")";
+        $sales_info = person_subject_assoc_distance($row_comments, $found_person, array("sales", "engineer", "rep", "credit", "commission", "thank you", "attn", "help", "client"));
+        echo $sales_info['distance'] . " (" . $sales_info['keyword'] . ")";
+        
+        
+        
+        
     }
 //    $referral_subject_keywords = array("signature", "sig", "sign", "door", "package");
 //    $referral_positive_keywords = array("include");
@@ -289,7 +322,8 @@ for ($c = 0; $c < count($people); $c++) {
 
 
 
-
+echo "<hr>";
+print_debug($metadata);
 
 
 
