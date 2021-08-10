@@ -8,14 +8,16 @@ $row_sentences = "";
 $row_shipdate_expected = "";
 $row_id = -1;
 
+
 $metadata = array(
     "call_wanted" => "0",
-    "require_signature" => "0",
+    "require_signature" => "1",
     "expected_ship_date" => "0000-00-00",
     "candy_assoc" => array(),
     "people_assoc" => array()
     );
 
+//$metadataResults = array();
 
 
 //Load Comment Record
@@ -115,10 +117,10 @@ echo "<hr>";
 $sigsubjectKeywords = array("signature", "sig", "sign", "door", "package", "porch");
 $sigpositiveKeywords = array("include");
 $signegativeKeywords = array("waive", "leave", "left", "remove", "not", "no", "without");
-$sigpositive = 0;
+$sigpositive = 1;
 for ($x = 0; $x < count($row_sentences); $x++) {    
     $sigpositive += subject_decision($row_sentences[$x], $sigsubjectKeywords, $sigpositiveKeywords, $signegativeKeywords);
-
+    //echo "$sigpositive: " . $sigpositive . "<br>";
 }
 echo "Signature Decision: " . $sigpositive;
 
@@ -136,13 +138,15 @@ echo "<hr>";
 
 
 
+echo "<hr>Candy Found:<br>";
 
+$candyFound = array();
 
 //split comment into words
   //find sounds like candy words from candy table
     //create candy association
-echo "<br>meta: " . metaphone_search('Bit o Honey', $row_comments);
-echo "<br>exact: " . exact_search('Bit O Honey', $row_comments);
+//echo "<br>meta: " . metaphone_search('Bit o Honey', $row_comments);
+//echo "<br>exact: " . exact_search('Bit O Honey', $row_comments);
 
 $candy_sql = "SELECT id, name FROM candy ORDER BY name ASC";
 $candies = array();
@@ -186,6 +190,7 @@ for ($c = 0; $c < count($candies); $c++) {
 
 echo "<hr>Names Found:<br>";
 
+$namesFound = array();
 
 // DECENT!!!
 //preg_match_all('/[A-Z][a-z]+\s+(?:[A-Z][a-z]*\.?\s*)?[A-Z][a-z]*/', $row_comments, $nameMatches, PREG_OFFSET_CAPTURE);
@@ -207,7 +212,7 @@ if (isset($nameMatches[0])) {
             
             if ($matchedName != "") {
                 if ($nameMatches[0][$m][0] != $matchedName) {
-                    $temp = preg_replace("/(^\W*|\W*$)/", "", $matchedName);
+                    $temp = preg_replace("/(^\W*|[\W\.]*$)/", "", $matchedName);
                     $matchedName = $temp;
                 }
                 if (strtoupper($matchedName) != "I" && strtoupper($matchedName) != "A") {
@@ -218,6 +223,7 @@ if (isset($nameMatches[0])) {
                         $personId = ensure_person_exists($matchedName, TRUE, FALSE, $conn); // check against auto-gen
                     }
                     echo "<br>Person Id: " . $personId . "<br>";
+                    $namesFound[$matchedName] = $personId;
                 }
                 
 
@@ -236,21 +242,6 @@ echo "<hr>";
 
 
 
-
-
-
-// sales
-//30814225
-//30823762
-//30261410
-//30812036
-//
-// referral
-//30823762
-//30596166
-//30820472
-
-
 echo "<hr>";
 
 
@@ -262,7 +253,7 @@ if ($people_result->num_rows > 0) {
     while($people_row = $people_result->fetch_assoc()) {
         $people[] = array("id" => $people_row["id"], "name" => $people_row["name"]);
     }
-}    
+}
 
 for ($c = 0; $c < count($people); $c++) {
     $found_person = "";
@@ -286,15 +277,27 @@ for ($c = 0; $c < count($people); $c++) {
     }
     
     if ($found_person != "") {
+        
+        //$cleanPerson = preg_replace('/\.$/i', "", $found_person);
+        
+        
         echo "<hr>Refer Distance: ";
         $refer_info = person_subject_assoc_distance($row_comments, $found_person, array("refer", "recommend", "told", "heard", "swears by"));
         echo $refer_info['distance'] . " (" . $refer_info['keyword'] . ")";
 
-        
-        // find shortest distance
+        //$tempDist = $refer_info['distance'];
+        // find/use shortest distance
         // insert relationship based on shortest distance
         //create_people_assoc_record(int $orderId, int $personId, int $relationType);
         
+        
+        
+        print_debug($found_person);
+        print_debug($namesFound);
+        
+        if ($refer_info['distance'] > -1) {
+            $metadata["people_assoc"][] = array("PersonName" => $found_person, "PersonId" => $namesFound[$found_person], "Role" => "Refer");
+        }
         
         echo "<hr>";
         
@@ -302,7 +305,9 @@ for ($c = 0; $c < count($people); $c++) {
         $sales_info = person_subject_assoc_distance($row_comments, $found_person, array("sales", "engineer", "rep", "credit", "commission", "thank you", "attn", "help", "client"));
         echo $sales_info['distance'] . " (" . $sales_info['keyword'] . ")";
         
-        
+        if ($sales_info['distance'] > -1) {
+            $metadata["people_assoc"][] = array("PersonName" => $found_person, "PersonId" => $namesFound[$found_person], "Role" => "Sales");
+        }
         
         
     }
@@ -322,10 +327,6 @@ for ($c = 0; $c < count($people); $c++) {
 
 
 
-echo "<hr>";
-print_debug($metadata);
-
-
 
 
 //search comment for known names
@@ -340,4 +341,73 @@ print_debug($metadata);
 // if name is in same sentence as sales rep or sales engineer or credit or commission or "thank you" or attn, it is sales
 
 
+
+
+echo "<hr><h1>Processing...</h1><hr>";
+
+
+
+for ($i = 0; $i < count($metadata["candy_assoc"]); $i++) {
+    create_candy_assoc_record($row_id, $metadata["candy_assoc"][$i]["id"], $conn);
+}
+
+for ($i = 0; $i < count($metadata["people_assoc"]); $i++) {
+    if ($metadata["people_assoc"][$i]["Role"] == "Sales") {
+        create_people_assoc_record($row_id, $metadata["people_assoc"][$i]["PersonId"], 1, $conn);
+    }
+    if ($metadata["people_assoc"][$i]["Role"] == "Refer") {
+        create_people_assoc_record($row_id, $metadata["people_assoc"][$i]["PersonId"], 2, $conn);
+    }
+}
+
+
+$sqlUpdates = array();
+$sqlUpdateCommand = "UPDATE sweetwater_test SET ";
+
+if ($metadata["expected_ship_date"] != "0000-00-00") {
+    $sqlUpdates[] = array("db_field" => "shipdate_expected", "db_value" => $metadata["expected_ship_date"], "db_type" => "datetime");    
+}
+if ($metadata["call_wanted"] == "1") {
+    $sqlUpdates[] = array("db_field" => "call_wanted", "db_value" => "1", "db_type" => "int"); 
+}
+if ($metadata["require_signature"] == "1") {
+    $sqlUpdates[] = array("db_field" => "require_signature", "db_value" => "1", "db_type" => "int"); 
+}
+$sqlUpdates[] = array("db_field" => "metadata_generated", "db_value" => "1", "db_type" => "int"); 
+
+for ($s = 0; $s < count($sqlUpdates); $s++) {
+    if ($s > 0) {
+        $sqlUpdateCommand .= ", ";
+    }
+    switch ($sqlUpdates[$s]["db_type"]) {
+        case "datetime" : {
+            $sqlUpdateCommand .= $sqlUpdates[$s]["db_field"] . "='" . $sqlUpdates[$s]["db_value"] . "'";
+            break;
+        }
+        case "int" : {
+            $sqlUpdateCommand .= $sqlUpdates[$s]["db_field"] . "=" . $sqlUpdates[$s]["db_value"];
+            break;
+        }
+        default : {
+            
+        }
+    }    
+}
+$sqlUpdateCommand .= " WHERE orderid=" . $row_id . ";";
+
+
+
+if($result = mysqli_query($conn, $sqlUpdateCommand)){
+
+} else{
+    echo "ERROR Executing Query: $sql " . mysqli_error($conn);
+}
+
+    print_debug($sqlUpdateCommand);
+
+
+    
+    //reset_all_metadata($conn);
+    
+    
 ?>

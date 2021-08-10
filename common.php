@@ -7,16 +7,61 @@ function print_debug($var) {
 }
 
 
-function create_people_assoc_record(int $orderId, int $personId, int $relationType) {
+
+function reset_all_metadata($conn) {
     
-    // relation_type: 1 = sales, 2 = referrer
-    $sql = "INERT INTO (orderid, peopleid, relation_type) VALUES (" . $orderId . ", " . $personId . ", " . $relationType . ");";
-    $people_result = mysqli_query($conn, $sql);
-    if (mysqli_query($conn, $sql)) {
-        //$last_id = mysqli_insert_id($conn);
-        //$person_id = $last_id;
+    if($result = mysqli_query($conn, "TRUNCATE TABLE candy_assoc;")){
+
+    } else{
+        echo "<hr>ERROR: " . mysqli_error($conn);
     }
     
+    if($result = mysqli_query($conn, "TRUNCATE TABLE people_assoc;")){
+
+    } else{
+        echo "<hr>ERROR: " . mysqli_error($conn);
+    }
+    
+    if($result = mysqli_query($conn, "DELETE FROM people WHERE auto_detected=1;")){
+
+    } else{
+        echo "<hr>ERROR: " . mysqli_error($conn);
+    }
+    
+    if($result = mysqli_query($conn, "UPDATE sweetwater_test SET metadata_generated=0, call_wanted=0, call_completed=0, require_signature=0, shipdate_expected = '1970-01-01 08:00:00' WHERE 1=1;")){
+
+    } else{
+        echo "<hr>ERROR: " . mysqli_error($conn);
+    }
+    
+}
+
+
+function create_people_assoc_record($orderId, $personId, $relationType, $conn) {
+    $result = -1;
+    // relation_type: 1 = sales, 2 = referrer
+    $sql = "INSERT INTO people_assoc (orderid, peopleid, relation_type) VALUES (" . $orderId . ", " . $personId . ", " . $relationType . ");";
+    if (mysqli_query($conn, $sql)) {
+        $result = mysqli_insert_id($conn);        
+    }
+    return $result;
+}
+
+
+function create_candy_assoc_record($orderId, $candyId, $conn) {
+    $result = -1;
+    $sql = "INSERT INTO candy_assoc (orderid, candyid) VALUES (" . $orderId . ", " . $candyId . ");";
+    
+//    if($result = mysqli_query($conn, $sql)){
+//        
+//    } else{
+//        echo "ERROR: Could not able to execute $sql. " . mysqli_error($conn);
+//    }
+    
+    if (mysqli_query($conn, $sql)) {
+        $result = mysqli_insert_id($conn);        
+    }
+    return $result;
 }
 
 
@@ -126,7 +171,7 @@ function person_subject_assoc_distance(string $textSource, string $person, array
         }
     }
     
-    return array('distance' => $resultIndex, 'keyword' => $resultKeyword);
+    return array('personId' => $personIndex . "-@", 'distance' => $resultIndex, 'keyword' => $resultKeyword);
 }
 
 
