@@ -80,7 +80,7 @@ function ensure_person_exists(string $person, bool $truncatedSearch, bool $prefe
     }
     
     $person_id = -1;
-    echo $people_sql;
+    //echo $people_sql;
     $people_result = mysqli_query($conn, $people_sql);
     if ($people_result->num_rows == 1) {
         // found one entry, use located person
@@ -181,6 +181,9 @@ function metaphone_search(string $needle, string $haystack) {
     $needle_metaphone = "";
     $haystack_words = preg_split("/\s/", $haystack);
     $haystack_metaphone = "";
+    
+    //echo "<hr>needle_metaphone: " . $needle_metaphone;
+    //echo "<hr>haystack_metaphone: " . $haystack_metaphone;
     
     for ($i = 0; $i < count($needle_words); $i++) {
         $needle_metaphone .= metaphone($needle_words[$i]) . " ";

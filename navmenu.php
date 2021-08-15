@@ -20,8 +20,8 @@
     <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClick('people.php');">Manage People</button>
     <?php } ?>
     <?php if ($currentNavButton == "metadata") { ?>
-    <button type="button" class="btn btn-dark sweetwaterLogoType" style="font-weight: 700; font-family: 'Permanent Marker', cursive;" onclick="navClick('metadata.php');">Meta Data</button>
+    <button type="button" class="btn btn-dark sweetwaterLogoType" style="font-weight: 700; font-family: 'Permanent Marker', cursive;" onclick="navClick('metadata.php');">Metadata</button>
     <?php } else { ?>
-    <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClick('metadata.php');">Meta Data</button>
+    <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClick('metadata.php');">Metadata</button>
     <?php } ?>    
 </div>

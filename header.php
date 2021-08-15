@@ -21,6 +21,17 @@
                     location.href = page;
                 }
             }
+            
+            
+            // read count of processed comments.
+            // read unprocessed comments, return list of orderids
+            // click process button
+            //  queue next 10 comments
+            //  send queue comments to server, wait for responses
+            //  when response is received, update all counts, update interface, add one to queue
+           
+            
+            
         </script>
         
         <meta charset="UTF-8">

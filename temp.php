@@ -6,12 +6,12 @@ require_once(__DIR__ . '/conn.php');
 
 
 
-if (array_key_exists('action', $_POST)) {
-    $action = filter_var($_POST['action'], FILTER_SANITIZE_STRING);
+if (array_key_exists('action', $_GET)) {
+    $action = filter_var($_GET['action'], FILTER_SANITIZE_STRING);
     switch ($action) {
         case "process" : {
-            if (array_key_exists('id', $_POST)) {
-                $id = filter_var($_POST['id'], FILTER_VALIDATE_INT);
+            if (array_key_exists('id', $_GET)) {
+                $id = filter_var($_GET['id'], FILTER_VALIDATE_INT);
             }
             process_comment($id, $conn);
             die();
@@ -199,7 +199,7 @@ function process_comment($orderid, $conn) {
         $callpositive += subject_decision($row_sentences[$x], $callsubjectKeywords, $callpositiveKeywords, $callnegativeKeywords);
 
     }
-    //echo "Call Decision: " . $callpositive;
+    echo "Call Decision: " . $callpositive;
 
     if ($callpositive <= 0) {
         $metadata["call_wanted"] = "0";
@@ -226,9 +226,9 @@ function process_comment($orderid, $conn) {
     $sigpositive = 1;
     for ($x = 0; $x < count($row_sentences); $x++) {    
         $sigpositive += subject_decision($row_sentences[$x], $sigsubjectKeywords, $sigpositiveKeywords, $signegativeKeywords);
-        //echo "$sigpositive: " . $sigpositive . "<br>";
+        echo "$sigpositive: " . $sigpositive . "<br>";
     }
-    //echo "Signature Decision: " . $sigpositive;
+    echo "Signature Decision: " . $sigpositive;
 
     if ($sigpositive <= 0) {
         $metadata["require_signature"] = "0";
@@ -236,7 +236,7 @@ function process_comment($orderid, $conn) {
         $metadata["require_signature"] = "1";
     }
 
-    //echo "<hr>";
+    echo "<hr>";
 
 
 
@@ -244,7 +244,7 @@ function process_comment($orderid, $conn) {
 
 
 
-    //echo "<hr>Candy Found:<br>";
+    echo "<hr>Candy Found:<br>";
 
     $candyFound = array();
 
@@ -266,14 +266,14 @@ function process_comment($orderid, $conn) {
     for ($c = 0; $c < count($candies); $c++) {
         if (exact_search($candies[$c]['name'], $row_comments)) {
             // exact match found
-            //echo $candies[$c]['name'] . " located exactly.<br>";
+            echo $candies[$c]['name'] . " located exactly.<br>";
             $metadata["candy_assoc"][] = $candies[$c];
             // CREATE ASSOCIATION orderid <-> candyid
         } else {
             // exact match NOT found
             if (metaphone_search($candies[$c]['name'], $row_comments)) {
                 // metaphone match found
-                //echo $candies[$c]['name'] . " located by metaphone.<br>";
+                echo $candies[$c]['name'] . " located by metaphone.<br>";
                 $metadata["candy_assoc"][] = $candies[$c];
                 // CREATE ASSOCIATION orderid <-> candyid
             } else {
@@ -294,7 +294,7 @@ function process_comment($orderid, $conn) {
 
 
 
-    //echo "<hr>Names Found:<br>";
+    echo "<hr>Names Found:<br>";
 
     $namesFound = array();
 
@@ -322,13 +322,13 @@ function process_comment($orderid, $conn) {
                         $matchedName = $temp;
                     }
                     if (strtoupper($matchedName) != "I" && strtoupper($matchedName) != "A") {
-                        //echo "name: " . $nameMatches[0][$m][0] . " => " . $matchedName . ";<br>";
+                        echo "name: " . $nameMatches[0][$m][0] . " => " . $matchedName . ";<br>";
 
                         $personId = ensure_person_exists($matchedName, TRUE, TRUE, $conn); // check against system
                         if ($personId == -1) {
                             $personId = ensure_person_exists($matchedName, TRUE, FALSE, $conn); // check against auto-gen
                         }
-                        //echo "<br>Person Id: " . $personId . "<br>";
+                        echo "<br>Person Id: " . $personId . "<br>";
                         
                         $namesFound[$matchedName] = $personId;
                     }
@@ -339,17 +339,17 @@ function process_comment($orderid, $conn) {
         }
 
     }
-    //echo "<hr>";
+    echo "<hr>";
 
-    //echo "<br>Person Id 2: " . ensure_person_exists("Mark Smith", TRUE, FALSE, $conn) . "<br>";
-
-
+    echo "<br>Person Id 2: " . ensure_person_exists("Mark Smith", TRUE, FALSE, $conn) . "<br>";
 
 
 
 
 
-    //echo "<hr>";
+
+
+    echo "<hr>";
 
 
 
@@ -367,22 +367,20 @@ function process_comment($orderid, $conn) {
         if (exact_search($people[$c]['name'], $row_comments)) {
             // exact match found
             $found_person = $people[$c]['name'];
-            //echo "<br>" . $found_person . " located exactly.<br>";
+            echo "<br>" . $found_person . " located exactly.<br>";
             // Look for referral or sales
             // CREATE ASSOCIATION orderid <-> personid
         } else {
             // exact match NOT found
-            // TODO: DEBUG THIS, CAUSING PROBLEMS CURRENTLY
-            if (metaphone_search($people[$c]['name'], $row_comments)) {
-                // metaphone match found
-                $found_person = $people[$c]['name'];
-                //echo "<br>" . $found_person . " located by metaphone.<br>";
-                // Look for referral or sales
-                // CREATE ASSOCIATION orderid <-> personid
-            } else {
-                // no match found
-            }
-            
+//            if (metaphone_search($people[$c]['name'], $row_comments)) {
+//                // metaphone match found
+//                $found_person = $people[$c]['name'];
+//                echo "<br>" . $found_person . " located by metaphone.<br>";
+//                // Look for referral or sales
+//                // CREATE ASSOCIATION orderid <-> personid
+//            } else {
+//                // no match found
+//            }
         }
 
         if ($found_person != "") {
@@ -390,9 +388,9 @@ function process_comment($orderid, $conn) {
             //$cleanPerson = preg_replace('/\.$/i', "", $found_person);
 
 
-            //echo "<hr>Refer Distance: ";
+            echo "<hr>Refer Distance: ";
             $refer_info = person_subject_assoc_distance($row_comments, $found_person, array("refer", "recommend", "told", "heard", "swears by"));
-            //echo $refer_info['distance'] . " (" . $refer_info['keyword'] . ")";
+            echo $refer_info['distance'] . " (" . $refer_info['keyword'] . ")";
 
             //$tempDist = $refer_info['distance'];
             // find/use shortest distance
@@ -401,8 +399,8 @@ function process_comment($orderid, $conn) {
 
 
 
-            //print_debug($found_person);
-            //print_debug($namesFound);
+            print_debug($found_person);
+            print_debug($namesFound);
 
             if ($refer_info['distance'] > -1) {
                 //if (!isset($metadata["people_assoc"]["PersonName"])) {
@@ -414,11 +412,11 @@ function process_comment($orderid, $conn) {
                 //}
             }
 
-            //echo "<hr>";
+            echo "<hr>";
 
-            //echo "<hr>Sales Distance: ";
+            echo "<hr>Sales Distance: ";
             $sales_info = person_subject_assoc_distance($row_comments, $found_person, array("sales", "engineer", "rep", "credit", "commission", "thank you", "attn", "help", "client"));
-            //echo $sales_info['distance'] . " (" . $sales_info['keyword'] . ")";
+            echo $sales_info['distance'] . " (" . $sales_info['keyword'] . ")";
 
             if ($sales_info['distance'] > -1) {
                 //if (!isset($metadata["people_assoc"]["PersonName"])) {
@@ -462,7 +460,7 @@ function process_comment($orderid, $conn) {
 
 
 
-    //echo "<hr><h1>Processing...</h1><hr>";
+    echo "<hr><h1>Processing...</h1><hr>";
 
 
 
@@ -523,9 +521,9 @@ function process_comment($orderid, $conn) {
     }
 
     // Set JSON Headers, return JSON metadata info
-    header('Cache-Control: no-cache, must-revalidate');
-    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-    header('Content-type: application/json');
+    //header('Cache-Control: no-cache, must-revalidate');
+    //header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+    //header('Content-type: application/json');
     echo json_encode($metadata, JSON_PRETTY_PRINT);
 
 }
