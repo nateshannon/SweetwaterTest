@@ -4,6 +4,9 @@ $currentNavButton = "people";
 
 require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/conn.php');
+require_once(__DIR__ . '/common.php');
+
+
 
 if (!empty($_GET)) {
     if (isset($_GET['action']) && isset($_GET['id'])) {
@@ -67,7 +70,8 @@ require_once(__DIR__ . '/header.php');
 <?php
         
 
-$result = mysqli_query($conn, "SELECT * FROM people ORDER BY name ASC");
+$f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+$result = mysqli_query($conn, 'SELECT *, DATE_FORMAT(created_on, "%b. %D @ %l:%i%p") AS short_date, DATE_FORMAT(created_on, "%W, the %D day of %M, in the year of our Lord") AS long_date1, DATE_FORMAT(created_on, "%Y") AS long_date2 FROM people ORDER BY name ASC');
      
 if ($result->num_rows > 0) {
 ?>
@@ -76,6 +80,8 @@ if ($result->num_rows > 0) {
                           <tr>
                             <th scope="col">Id</th>
                             <th scope="col" style="text-align:left;">Name</th>
+                            <th scope="col" style="text-align:left;">Type</th>
+                            <th scope="col" style="text-align:left;">Created</th>
                             <th scope="col" style="text-align:right;"><button type="button" class="btn btn-primary" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" data-bs-toggle="modal" data-bs-target="#staticBackdrop">New Person</button></th>
                           </tr>
                         </thead>
@@ -86,6 +92,8 @@ if ($result->num_rows > 0) {
                           <tr>
                             <th scope="row"><?= $row["id"]; ?></th>
                             <td style="text-align:left;"><?= $row["name"]; ?></td>
+                            <td style="text-align:left;"><?= ($row["auto_detected"] == 1) ? "Auto-Detected" : "Manually Entered"; ?></td>
+                            <td style="text-align:left;"><span title="<?= $row["long_date1"] . ", " . $f->format($row["long_date2"]); ?>"><?= $row["short_date"]; ?></span></td>
                             <td style="text-align:right;"><button type="button" class="btn btn-outline-dark btn-sm" style="font-weight: 400; font-family: 'Permanent Marker', cursive;">Find Comments</button> <button type="button" class="btn btn-outline-danger btn-sm" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClickConfirm('people.php?action=delete&id=<?= $row["id"]; ?>', 'Are you sure you want to delete <?= $row["name"]; ?>?')">Delete Person</button></td>
                           </tr>
                           <?php

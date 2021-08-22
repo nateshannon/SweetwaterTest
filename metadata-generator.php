@@ -28,6 +28,15 @@ if (array_key_exists('action', $_POST)) {
             die();            
             break;
         }
+        case "completeCallToggle" : {
+            $orderid = 0;
+            if (array_key_exists('orderid', $_POST)) {
+                $orderid = filter_var($_POST['orderid'], FILTER_VALIDATE_INT);
+            }
+            complete_call_toggle($orderid, $conn);
+            die();            
+            break;
+        }
         case "clearMetadata" : {            
             reset_all_metadata($conn);
             die();            
@@ -51,6 +60,40 @@ if (array_key_exists('action', $_POST)) {
 }
 die();
 
+
+
+
+function complete_call_toggle($orderid, $conn) {
+    $call_result = array(
+        "orderid" => $orderid,
+        "new_call_completed" => -1,
+        "error" => ""
+    );
+    
+    $currentCallState = 0;
+    if($callResult = mysqli_query($conn, "SELECT call_completed FROM sweetwater_test WHERE orderid=" . $orderid . ";")){
+        $row = $callResult->fetch_assoc();
+        if ($callResult->num_rows == 1) {
+            $currentCallState = $row["call_completed"];
+        }
+    }
+    $callSql = "UPDATE sweetwater_test SET call_completed=ABS((1-call_completed)) WHERE orderid=" . $orderid;
+    if($result = mysqli_query($conn, $callSql)){        
+        $call_result["new_call_completed"] = 1;
+        if (intval($currentCallState) == 1) {
+            $call_result["new_call_completed"] = 0;
+        } elseif (intval($currentCallState) == 0) {
+            $call_result["new_call_completed"] = 1;
+        }
+    } else{
+        $call_result["error"] = "SQL Statement: " . $callSql . " => Error: " . mysqli_error($conn);        
+    }
+    
+    header('Cache-Control: no-cache, must-revalidate');
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+    header('Content-type: application/json');
+    echo json_encode($call_result, JSON_PRETTY_PRINT);    
+}
 
 
 
