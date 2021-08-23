@@ -22,6 +22,9 @@ $sql_where = " WHERE metadata_generated=1 "; // only include comments that have 
 $filterSignatureRequired = "";
 $filterCallWanted = "";
 $filterCallCompleted = "";
+$filterPeopleText = "";
+$filterCandyText = "";
+$filterKeywordText = "";
 $filterShipDateBegin = "";
 $filterShipDateEnd = "";
 $filterCandy = "";
@@ -53,6 +56,63 @@ if (!empty($_GET)) {
     }
     
     // WHERE CLAUSE
+    if (isset($_GET["people-text"])) {
+        //$newCandyName = filter_var($_POST['candyName'], FILTER_SANITIZE_STRING);
+        $filterPeopleText = filter_var($_GET['people-text'], FILTER_SANITIZE_STRING);
+        $filterPeopleText = preg_replace("/[^A-Za-z0-9\ \,\.\"\(\)\'\-]/", "", $filterPeopleText);
+        
+        if (strlen($filterPeopleText) > 0) {
+            $peopleList = explode(",", $filterPeopleText);
+            $peopleLookupWhere = "WHERE ";
+            $hasEntries = 0;
+            for ($l = 0; $l < count($peopleList); $l++) {
+                if (strlen($peopleList[$l]) > 0) {
+                    $hasEntries++;
+                    if ($l > 0) {
+                        $peopleLookupWhere .= " OR ";
+                    }
+                    $peopleLookupWhere .= "name LIKE '%" . $peopleList[$l] . "%' OR name SOUNDS LIKE '" . $peopleList[$l] . "'";
+                }
+            }
+            if (count($peopleList) > 0 && $hasEntries > 0) {
+                $sql_peopleLookup = "SELECT id FROM people " . $peopleLookupWhere;
+                $sql_where .= " AND orderid IN (SELECT orderid FROM people_assoc WHERE peopleid IN (" . $sql_peopleLookup . "))";
+            }
+        }
+        
+        //echo "People Count (" . $peopleList . "): " . count($peopleList);
+        //print_debug($peopleList);
+        
+    }
+    if (isset($_GET["candy-text"])) {
+        $filterCandyText = filter_var($_GET['candy-text'], FILTER_SANITIZE_STRING);
+        $filterCandyText = preg_replace("/[^A-Za-z0-9\ \,\!\.\?\'\-\&]/", "", $filterCandyText);
+        
+        if (strlen($filterCandyText) > 0) {
+            $candies = explode(",", $filterCandyText);
+            $candyLookupWhere = "WHERE ";
+            $hasEntries = 0;
+            for ($c = 0; $c < count($candies); $c++) {
+                if (strlen($candies[$c]) > 0) {
+                    $hasEntries++;
+                    if ($c > 0) {
+                        $candyLookupWhere .= " OR ";
+                    }
+                    $candyLookupWhere .= "name LIKE '%" . $candies[$c] . "%' OR name SOUNDS LIKE '" . $candies[$c] . "'";
+                }
+            }
+            if (count($candies) > 0 && $hasEntries > 0) {
+                $sql_candyLookup = "SELECT id FROM candy " . $candyLookupWhere;
+                $sql_where .= " AND orderid IN (SELECT orderid FROM candy_assoc WHERE candyid IN (" . $sql_candyLookup . "))";
+            }
+        }
+        
+    }
+    if (isset($_GET["keyword-text"])) {
+        $filterKeywordText = filter_var($_GET['keyword-text'], FILTER_SANITIZE_STRING);
+        //$filterKeywordText = preg_replace("/[^A-Za-z0-9\ \,\.]/", "", $filterKeywordText);        
+        $sql_where .= " AND comments LIKE '%" . $filterKeywordText . "%'";        
+    }
     if (isset($_GET["ship-date-start"])) {
         $startDateParts = getdate(strtotime($_GET["ship-date-start"]));
         $filterShipDateBegin = $startDateParts["year"] . "-" . str_pad($startDateParts["mon"], 2, "0", STR_PAD_LEFT) . "-" . str_pad($startDateParts["mday"], 2, "0", STR_PAD_LEFT);
@@ -207,6 +267,48 @@ function is_box_checked($field, $value) {
                 </label>
               </div>
             </div>
+          
+          <legend class="col-form-label col-sm-2 pt-0" style="text-align:right;"><b>Text Search:</b></legend>
+            <div class="col-sm-6">
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text bg-secondary text-light progress-bar-striped" style="border-radius:10px 0px 0px 10px;font-weight:700;" id="textsearch-keyword">Keyword</span>
+                <input type="text" class="form-control form-control-sm"  aria-describedby="textsearch-keyword" id="keyword" name="keyword-text" value="<?= $filterKeywordText; ?>">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text bg-secondary text-light progress-bar-striped" style="border-radius:10px 0px 0px 10px;font-weight:700;" id="textsearch-person">People</span>
+                <input class="form-control" type="email" multiple list="personDatalistOptions" id="personDataList" name="people-text" placeholder="" value="<?= $filterPeopleText; ?>" aria-describedby="textsearch-person">
+                <datalist id="personDatalistOptions">
+<?php
+        $sql_personList = "SELECT p.* FROM people p WHERE p.auto_detected=0 ORDER BY p.name ASC";
+        $personList_result = mysqli_query($conn, $sql_personList);
+        if ($personList_result->num_rows > 0) {
+            while($personList_row = $personList_result->fetch_assoc()) {
+                ?>
+                <option value="<?= $personList_row["name"]?>">
+                <?php                
+            }
+        }
+?>                      
+                </datalist>
+              </div>  
+              <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text bg-secondary text-light progress-bar-striped" style="border-radius:10px 0px 0px 10px;font-weight:700;" id="textsearch-candy">Candy</span>
+                <input class="form-control" type="email" multiple list="candyDatalistOptions" id="candyDataList" name="candy-text" placeholder="" value="<?= $filterCandyText; ?>" aria-describedby="textsearch-candy">
+                <datalist id="candyDatalistOptions">
+<?php
+        $sql_candyList = "SELECT * FROM candy ORDER BY name ASC";
+        $candyList_result = mysqli_query($conn, $sql_candyList);
+        if ($candyList_result->num_rows > 0) {
+            while($candyList_row = $candyList_result->fetch_assoc()) {
+                ?>
+                <option value="<?= $candyList_row["name"]?>">
+                <?php                
+            }
+        }
+?>                      
+                </datalist>
+              </div> 
+            </div>
       
   </div>
   <fieldset class="row mb-3">
@@ -279,7 +381,7 @@ function is_box_checked($field, $value) {
     </div>
   </fieldset>
     <div style="text-align:center;">
-        <button type="button" class="btn btn-success" style="font-weight:700px;" id="filterCommentsBtn" onclick="navPage(1);">Filter Comments <i class="fas fa-play" style="margin-left:0.5em;margin-right:0.0em;font-size:0.8em;"></i></button>
+        <button type="button" class="btn btn-success progress-bar-striped progress-bar-animated" style="font-weight:700;border-radius:20px;font-family: 'Oswald', sans-serif;font-size:1em;" id="filterCommentsBtn" onclick="navPage(1);">Filter Comments <i class="fas fa-play" style="margin-left:0.5em;margin-right:0.0em;font-size:1.0em;"></i></button>
     </div>
 </form>              
    

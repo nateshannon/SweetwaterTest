@@ -24,25 +24,28 @@ require_once(__DIR__ . '/header.php');
                     <p class="bodyParagraph">
                         
                         
-                    
-                        <div class="progress" style="height: 80px;">
+                    <div class="shadow p-3 mb-5 bg-body rounded">
+                        <div class="progress" style="height: 80px;border-radius:5px;">
                             
-                            <div class="progress-bar bg-dark" role="progressbar" style="width: 20%;" id="processedRecordsBar"><div><span id="processedRecordsTitle">Processed Records</span><br><span id="processedRecordsCount"></span></div></div>
+                            <div class="progress-bar bg-dark" role="progressbar" style="font-weight: 700; font-family: 'Oswald', sans-serif;font-size:1.25em;text-shadow:rgba(0, 0, 0, 1.0) 0px 0px 5px;width: 20%;box-shadow: inset rgba(0, 0, 0, 0.5) 0px 0px 25px, inset rgba(0, 0, 0, 0.75) 0px 0px 10px;" id="processedRecordsBar"><div><span id="processedRecordsTitle">Processed Records</span><br><span id="processedRecordsCount" style="font-weight: 400;line-height:0.8em; font-size:2.0em;font-family: 'Permanent Marker', cursive;color:#0172B9;"></span></div></div>
                             <!--
                             <div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 10%" ></div>
                             -->
-                            <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 25%;" id="processingRecordsBar"><div style="writing-mode: vertical-rl;font-weight:400;font-family: 'Montserrat', sans-serif;"><span id="processingRecordsTitle">Queue</span><br><span id="processingRecordsCount"></span></div></div>
+                            <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 25%;" id="processingRecordsBar"><div style="writing-mode: vertical-rl;font-size:1.8em;font-weight: 700; font-family: 'Oswald', sans-serif;"><span id="processingRecordsTitle">Queue</span><br><span id="processingRecordsCount" style="font-weight:400;"></span></div></div>
                             <!--
                             <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger" role="progressbar" style="width: 5%" ><div style="writing-mode: vertical-rl;font-weight:400;font-family: 'Permanent Marker', cursive;">Errors</div></div>
                             -->
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-secondary" role="progressbar" style="width: 80%;" id="pendingRecordsBar"><div><span id="pendingRecordsTitle">Ready To Process</span><br><span id="pendingRecordsCount"></span></div></div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-secondary" role="progressbar" style="font-weight: 700; font-family: 'Oswald', sans-serif;font-size:1.25em;text-shadow:rgba(0, 0, 0, 1.0) 0px 0px 5px;width: 80%;box-shadow: inset rgba(0, 0, 0, 0.5) 0px 0px 25px, inset rgba(0, 0, 0, 0.75) 0px 0px 10px;" id="pendingRecordsBar"><div><span id="pendingRecordsTitle">Ready To Process</span><br><span id="pendingRecordsCount" style="font-weight: 400;line-height:0.8em; font-size:2.0em;font-family: 'Permanent Marker', cursive;color:#D61721;"></span></div></div>
                             
                             
                         </div>
+                    </div>
                     
                     <br><br>
                     
-    
+                    <div id="debugDiv"></div>
+                    
+                    <br><br>
                     
                     
                     <button type="button" class="btn btn-dark sweetwaterLogoType btnDisable" style="font-weight: 700; font-family: 'Permanent Marker', cursive;" id="loadQueueBtn" onclick="startMetadataProcessing();">Process Pending Comments</button> 
@@ -164,21 +167,21 @@ require_once(__DIR__ . '/header.php');
 //            }
         }
         
-        function processQueue2() {
-            let processingComments = readCommentCount("processing");
-            if (processingComments > 0) {
-                //setTimeout(function(){
-                    // get next comment
-                    for (var m = 0; m < commentsList.length; m++) {
-                        if (commentsList[m].status == "processing") {
-                            commentProcess(commentsList[m].orderid);
-                            break;
-                        }
-                    }
-                    processQueue();
-                //}, 100);
-            }
-        }
+//        function processQueue2() {
+//            let processingComments = readCommentCount("processing");
+//            if (processingComments > 0) {
+//                //setTimeout(function(){
+//                    // get next comment
+//                    for (var m = 0; m < commentsList.length; m++) {
+//                        if (commentsList[m].status == "processing") {
+//                            commentProcess(commentsList[m].orderid);
+//                            break;
+//                        }
+//                    }
+//                    processQueue();
+//                //}, 100);
+//            }
+//        }
         
         function processQueue() {
             
@@ -297,6 +300,20 @@ require_once(__DIR__ . '/header.php');
 
 
                         console.log("Finished Processing: " + commentId);
+
+
+                        document.getElementById("debugDiv").innerHTML = jsonResponse["expected_ship_date"];
+//                        $metadata = array(
+//                        "metadata_status" => "pending",
+//                        "metadata_message" => "",
+//                        "orderid" => "0",
+//                        "call_wanted" => "0",
+//                        "require_signature" => "1",
+//                        "expected_ship_date" => "0000-00-00",
+//                        "candy_assoc" => array(),
+//                        "people_assoc" => array()
+//                        );
+
 
                     
                     } catch (error) {
@@ -491,181 +508,181 @@ require_once(__DIR__ . '/header.php');
         
         
         
-        
-        
-        //var readyToProcess = 0;
-        var initialProcessedCommentCount = 0;
-        var processedCommentCount = 0;
-        var processingCommentCount = 0;
-        var pendingCommentCount = 0;
-        var pendingComments = [];
-        var readyToProcess = false;
-        
-        function getCommentCount(statusToCount) {
-            //console.log(pendingComments);
-            var statusCount = 0;
-            for (var ctr = 0; ctr < pendingComments.length; ctr++) {
-                if (pendingComments[ctr].status == statusToCount) {
-                    statusCount++;
-                }
-            }
-            if (statusToCount == "processed") {
-                statusCount += parseInt(initialProcessedCommentCount);
-            }
-            return statusCount;
-        }
-        
-        function updateComment(commentId, status, message) {
-            for (var ctr = 0; ctr < pendingComments.length; ctr++) {
-                if (pendingComments[ctr].orderid == commentId) {
-                    pendingComments[ctr].status = status;
-                    pendingComments[ctr].message = message;
-                    updateProgressBar();
-                    break;
-                }
-            }
-            console.log(pendingComments);
-        }
-        
-        function beginCommentProcessing() {
-            
-            document.getElementById("processingRecordsBar").classList.add("progress-bar-animated");
-            document.getElementById("pendingRecordsBar").classList.add("progress-bar-animated");
-            document.getElementById("pendingRecordsTitle").innerHTML = "Pending Processing";
-            document.getElementById("processingRecordsTitle").innerHTML = "Processing";
-            
-            //alert(pendingComments.length);
-            //alert("statusCount: " + getCommentCount("pending"));
-            var queueSize = 50;
-            var commentQueue = [];
-            //var temp = "";
-            
-            
-            
-            for (var q = 0; q < pendingComments.length && commentQueue.length < queueSize; q++) {
-                if (pendingComments[q].status == "pending") {
-                    commentQueue.push(pendingComments[q].orderid);
-                    updateComment(pendingComments[q].orderid, "processing", "");
-                }
-            }
-            
-            console.log(commentQueue);
-            
-            updateProgressBar();
-            //alert(JSON.stringify(commentQueue));
-            //
-            //
-            //updateComment(commentId, status, message)
-            
-            for (var x = 0; x < commentQueue.length; x++) {
-                
-                processComment(parseInt(commentQueue[x]));
-            }
-            //updateProgressBar();
-            
-            //updateProgressBar();
-        }
-        
-        function cancelCommentProcessing() {
-            document.getElementById("processingRecordsBar").classList.remove("progress-bar-animated");
-            document.getElementById("pendingRecordsBar").classList.remove("progress-bar-animated");
-            document.getElementById("pendingRecordsTitle").innerHTML = "Ready To Process";
-            
-            updateProgressBar();
-        }
-        
-        function updateProgressBar() {
-            
-            //processedCommentCount = getCommentCount("processed");
-            //pendingCommentCount = getCommentCount("pending");
-            
-            var totalCount = parseInt(processedCommentCount) + parseInt(processingCommentCount) + parseInt(pendingCommentCount);
-            //alert(totalCount);
-            var processedCommentPct = (100 / totalCount) * parseInt(processedCommentCount);
-            var processingCommentPct = (100 / totalCount) * parseInt(processingCommentCount);
-            var pendingCommentPct = (100 / totalCount) * parseInt(pendingCommentCount);
-            
-            document.getElementById("debug").innerHTML = "processedCommentCount=" + processedCommentCount + " / processingCommentCount=" + processingCommentCount + " / pendingCommentCount=" + pendingCommentCount;
-            
-            
-            if (processedCommentPct == 0) {
-                document.getElementById("processedRecordsBar").style.display = "none";
-            } else {
-                document.getElementById("processedRecordsBar").style.display = "flex";
-                document.getElementById("processedRecordsBar").style.width = processedCommentPct + "%";
-            }
-            
-            if (processingCommentPct == 0) {
-                document.getElementById("processingRecordsBar").style.display = "none";
-            } else {
-                document.getElementById("processingRecordsBar").style.display = "flex";
-                document.getElementById("processingRecordsBar").style.width = processingCommentPct + "%";
-            }
-            
-            if (pendingCommentPct == 0) {
-                document.getElementById("pendingRecordsBar").style.display = "none";
-            } else {
-                document.getElementById("pendingRecordsBar").style.display = "flex";
-                document.getElementById("pendingRecordsBar").style.width = pendingCommentPct + "%";
-            }
-            
-            
-            document.getElementById("processedRecordsCount").innerHTML = processedCommentCount;
-            document.getElementById("processingRecordsCount").innerHTML = processingCommentCount;
-            document.getElementById("pendingRecordsCount").innerHTML = pendingCommentCount;
-//            if (processingCommentCount > 0) {
-//                document.getElementById("pendingRecordsTitle").innerHTML = "Pending Processing";
-//            } else {
-//                document.getElementById("pendingRecordsTitle").innerHTML = "Ready To Process";
+//        
+//        
+//        //var readyToProcess = 0;
+//        var initialProcessedCommentCount = 0;
+//        var processedCommentCount = 0;
+//        var processingCommentCount = 0;
+//        var pendingCommentCount = 0;
+//        var pendingComments = [];
+//        var readyToProcess = false;
+//        
+//        function getCommentCount(statusToCount) {
+//            //console.log(pendingComments);
+//            var statusCount = 0;
+//            for (var ctr = 0; ctr < pendingComments.length; ctr++) {
+//                if (pendingComments[ctr].status == statusToCount) {
+//                    statusCount++;
+//                }
 //            }
-        }
-        
-        function beginProcessing() {
+//            if (statusToCount == "processed") {
+//                statusCount += parseInt(initialProcessedCommentCount);
+//            }
+//            return statusCount;
+//        }
+//        
+//        function updateComment(commentId, status, message) {
+//            for (var ctr = 0; ctr < pendingComments.length; ctr++) {
+//                if (pendingComments[ctr].orderid == commentId) {
+//                    pendingComments[ctr].status = status;
+//                    pendingComments[ctr].message = message;
+//                    updateProgressBar();
+//                    break;
+//                }
+//            }
+//            console.log(pendingComments);
+//        }
+//        
+//        function beginCommentProcessing() {
+//            
+//            document.getElementById("processingRecordsBar").classList.add("progress-bar-animated");
+//            document.getElementById("pendingRecordsBar").classList.add("progress-bar-animated");
+//            document.getElementById("pendingRecordsTitle").innerHTML = "Pending Processing";
+//            document.getElementById("processingRecordsTitle").innerHTML = "Processing";
+//            
+//            //alert(pendingComments.length);
+//            //alert("statusCount: " + getCommentCount("pending"));
+//            var queueSize = 50;
+//            var commentQueue = [];
+//            //var temp = "";
+//            
+//            
+//            
+//            for (var q = 0; q < pendingComments.length && commentQueue.length < queueSize; q++) {
+//                if (pendingComments[q].status == "pending") {
+//                    commentQueue.push(pendingComments[q].orderid);
+//                    updateComment(pendingComments[q].orderid, "processing", "");
+//                }
+//            }
+//            
+//            console.log(commentQueue);
+//            
+//            updateProgressBar();
+//            //alert(JSON.stringify(commentQueue));
+//            //
+//            //
+//            //updateComment(commentId, status, message)
+//            
+//            for (var x = 0; x < commentQueue.length; x++) {
+//                
+//                processComment(parseInt(commentQueue[x]));
+//            }
+//            //updateProgressBar();
+//            
+//            //updateProgressBar();
+//        }
+//        
+//        function cancelCommentProcessing() {
+//            document.getElementById("processingRecordsBar").classList.remove("progress-bar-animated");
+//            document.getElementById("pendingRecordsBar").classList.remove("progress-bar-animated");
+//            document.getElementById("pendingRecordsTitle").innerHTML = "Ready To Process";
+//            
+//            updateProgressBar();
+//        }
+//        
+//        function updateProgressBar() {
+//            
+//            //processedCommentCount = getCommentCount("processed");
+//            //pendingCommentCount = getCommentCount("pending");
+//            
+//            var totalCount = parseInt(processedCommentCount) + parseInt(processingCommentCount) + parseInt(pendingCommentCount);
+//            //alert(totalCount);
+//            var processedCommentPct = (100 / totalCount) * parseInt(processedCommentCount);
+//            var processingCommentPct = (100 / totalCount) * parseInt(processingCommentCount);
+//            var pendingCommentPct = (100 / totalCount) * parseInt(pendingCommentCount);
+//            
+//            document.getElementById("debug").innerHTML = "processedCommentCount=" + processedCommentCount + " / processingCommentCount=" + processingCommentCount + " / pendingCommentCount=" + pendingCommentCount;
+//            
+//            
+//            if (processedCommentPct == 0) {
+//                document.getElementById("processedRecordsBar").style.display = "none";
+//            } else {
+//                document.getElementById("processedRecordsBar").style.display = "flex";
+//                document.getElementById("processedRecordsBar").style.width = processedCommentPct + "%";
+//            }
+//            
+//            if (processingCommentPct == 0) {
+//                document.getElementById("processingRecordsBar").style.display = "none";
+//            } else {
+//                document.getElementById("processingRecordsBar").style.display = "flex";
+//                document.getElementById("processingRecordsBar").style.width = processingCommentPct + "%";
+//            }
+//            
+//            if (pendingCommentPct == 0) {
+//                document.getElementById("pendingRecordsBar").style.display = "none";
+//            } else {
+//                document.getElementById("pendingRecordsBar").style.display = "flex";
+//                document.getElementById("pendingRecordsBar").style.width = pendingCommentPct + "%";
+//            }
+//            
+//            
+//            document.getElementById("processedRecordsCount").innerHTML = processedCommentCount;
+//            document.getElementById("processingRecordsCount").innerHTML = processingCommentCount;
+//            document.getElementById("pendingRecordsCount").innerHTML = pendingCommentCount;
+////            if (processingCommentCount > 0) {
+////                document.getElementById("pendingRecordsTitle").innerHTML = "Pending Processing";
+////            } else {
+////                document.getElementById("pendingRecordsTitle").innerHTML = "Ready To Process";
+////            }
+//        }
+//        
+//        function beginProcessing() {
+////            var xmlhttp = new XMLHttpRequest();
+////
+////            xmlhttp.onreadystatechange = function() {
+////                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+////                    var jsonResponse = JSON.parse(xmlhttp.responseText);
+////                    alert(jsonResponse["metadata_status"]);
+////                }
+////            }
+////
+////            xmlhttp.open("POST", "metadata-generator.php", true);
+////            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+////            xmlhttp.send("id=27908914&action=process");
+//;
+//            //alert(getCommentCount("processed"));
+//            processComment(28787145);
+//        }
+//        
+//        function processComment(commentId) {
+//            
 //            var xmlhttp = new XMLHttpRequest();
 //
 //            xmlhttp.onreadystatechange = function() {
 //                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-//                    var jsonResponse = JSON.parse(xmlhttp.responseText);
-//                    alert(jsonResponse["metadata_status"]);
+//                    var jsonResponse = xmlhttp.responseText;
+//                    console.log("xmlhttp.responseText...: " + xmlhttp.responseText);
+//                    
+//                    updateComment(commentId, jsonResponse["metadata_status"], jsonResponse["metadata_message"]);
+//                    
+//                    processedCommentCount = getCommentCount("processed");
+//                    console.log("processedCommentCount: " + processedCommentCount);
+//                    processingCommentCount = getCommentCount("processing");
+//                    console.log("processingCommentCount: " + processingCommentCount);
+//                    pendingCommentCount = getCommentCount("pending");
+//                    console.log("pendingCommentCount: " + pendingCommentCount);
+//                    //console.log("...test...");
+//                    updateProgressBar();
 //                }
+//                //updateProgressBar();
 //            }
-//
+//            
 //            xmlhttp.open("POST", "metadata-generator.php", true);
 //            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-//            xmlhttp.send("id=27908914&action=process");
-;
-            //alert(getCommentCount("processed"));
-            processComment(28787145);
-        }
-        
-        function processComment(commentId) {
-            
-            var xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    var jsonResponse = xmlhttp.responseText;
-                    console.log("xmlhttp.responseText...: " + xmlhttp.responseText);
-                    
-                    updateComment(commentId, jsonResponse["metadata_status"], jsonResponse["metadata_message"]);
-                    
-                    processedCommentCount = getCommentCount("processed");
-                    console.log("processedCommentCount: " + processedCommentCount);
-                    processingCommentCount = getCommentCount("processing");
-                    console.log("processingCommentCount: " + processingCommentCount);
-                    pendingCommentCount = getCommentCount("pending");
-                    console.log("pendingCommentCount: " + pendingCommentCount);
-                    //console.log("...test...");
-                    updateProgressBar();
-                }
-                //updateProgressBar();
-            }
-            
-            xmlhttp.open("POST", "metadata-generator.php", true);
-            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xmlhttp.send("action=process&id=" + commentId);
-        }
-        
+//            xmlhttp.send("action=process&id=" + commentId);
+//        }
+//        
         function clearMetadata() {
             
             var xmlhttp = new XMLHttpRequest();
@@ -680,87 +697,87 @@ require_once(__DIR__ . '/header.php');
             xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xmlhttp.send("action=clearMetadata");
         }
-        
-        function getInitialCommentCounts() {
-            //var commentCounts = {"processed":0,"pending":0} 
-            
-            var xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    
-                    
-                    var jsonResponse = JSON.parse(xmlhttp.responseText);
-                    
-                    //alert(xmlhttp.responseText);
-                    if (jsonResponse["error"] == "") {
-                        //alert("te");
-                        //commentCounts["processed"] = jsonResponse["processed"];
-                        //commentCounts["pending"] = jsonResponse["pending"];
-                        initialProcessedCommentCount = jsonResponse["processed"];
-                        processedCommentCount = jsonResponse["processed"];
-                        processingCommentCount = 0;
-                        pendingCommentCount = jsonResponse["pending"];
-                        
-                        document.getElementById("processedRecordsBar").style.display = "none";
-                        document.getElementById("processingRecordsBar").style.display = "none";
-                        document.getElementById("pendingRecordsBar").style.display = "none";
-                        
-                        document.getElementById("pendingRecordsBar").classList.remove("progress-bar-animated");
-                        document.getElementById("processingRecordsBar").classList.remove("progress-bar-animated");
-                        document.getElementById("processedRecordsBar").classList.remove("progress-bar-animated");
-                        
-                        updateProgressBar();
-                        
-                        getPendingCommentIds();
-                        
-                    } else {
-                       //alert("err: " + jsonResponse["error"]);
-                    }                    
-                }
-            }
-            
-            xmlhttp.open("POST", "metadata-generator.php", true);
-            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xmlhttp.send("action=getCommentCounts");
-            
-            //return commentCounts;
-        }
-            
-        function getPendingCommentIds() {
-
-            //var pendingComments = [];               
-            var pendingComment = {
-                orderid: "0",
-                status: "pending",
-                message: ""
-            }
-            
-            var xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                    var jsonResponse = JSON.parse(xmlhttp.responseText);
-                    
-                    for (var x = 0; x < jsonResponse.length; x++) {
-                        var thisComment = JSON.parse(JSON.stringify(pendingComment));
-                        thisComment.orderid = jsonResponse[x];
-                        pendingComments.push(thisComment);
-                    }
-                    
-                    // execute processing on comment array
-                    readyToProcess = true;
-                    document.getElementById("processCommentsBtn").classList.remove("btnDisable");
-                    //alert(JSON.stringify(pendingComments));
-                }
-            }
-            
-            xmlhttp.open("POST", "metadata-generator.php", true);
-            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xmlhttp.send("action=getPendingCommentIds");
-            
-            //return commentCounts;
-        }
+//        
+//        function getInitialCommentCounts() {
+//            //var commentCounts = {"processed":0,"pending":0} 
+//            
+//            var xmlhttp = new XMLHttpRequest();
+//
+//            xmlhttp.onreadystatechange = function() {
+//                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+//                    
+//                    
+//                    var jsonResponse = JSON.parse(xmlhttp.responseText);
+//                    
+//                    //alert(xmlhttp.responseText);
+//                    if (jsonResponse["error"] == "") {
+//                        //alert("te");
+//                        //commentCounts["processed"] = jsonResponse["processed"];
+//                        //commentCounts["pending"] = jsonResponse["pending"];
+//                        initialProcessedCommentCount = jsonResponse["processed"];
+//                        processedCommentCount = jsonResponse["processed"];
+//                        processingCommentCount = 0;
+//                        pendingCommentCount = jsonResponse["pending"];
+//                        
+//                        document.getElementById("processedRecordsBar").style.display = "none";
+//                        document.getElementById("processingRecordsBar").style.display = "none";
+//                        document.getElementById("pendingRecordsBar").style.display = "none";
+//                        
+//                        document.getElementById("pendingRecordsBar").classList.remove("progress-bar-animated");
+//                        document.getElementById("processingRecordsBar").classList.remove("progress-bar-animated");
+//                        document.getElementById("processedRecordsBar").classList.remove("progress-bar-animated");
+//                        
+//                        updateProgressBar();
+//                        
+//                        getPendingCommentIds();
+//                        
+//                    } else {
+//                       //alert("err: " + jsonResponse["error"]);
+//                    }                    
+//                }
+//            }
+//            
+//            xmlhttp.open("POST", "metadata-generator.php", true);
+//            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+//            xmlhttp.send("action=getCommentCounts");
+//            
+//            //return commentCounts;
+//        }
+//            
+//        function getPendingCommentIds() {
+//
+//            //var pendingComments = [];               
+//            var pendingComment = {
+//                orderid: "0",
+//                status: "pending",
+//                message: ""
+//            }
+//            
+//            var xmlhttp = new XMLHttpRequest();
+//
+//            xmlhttp.onreadystatechange = function() {
+//                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+//                    var jsonResponse = JSON.parse(xmlhttp.responseText);
+//                    
+//                    for (var x = 0; x < jsonResponse.length; x++) {
+//                        var thisComment = JSON.parse(JSON.stringify(pendingComment));
+//                        thisComment.orderid = jsonResponse[x];
+//                        pendingComments.push(thisComment);
+//                    }
+//                    
+//                    // execute processing on comment array
+//                    readyToProcess = true;
+//                    document.getElementById("processCommentsBtn").classList.remove("btnDisable");
+//                    //alert(JSON.stringify(pendingComments));
+//                }
+//            }
+//            
+//            xmlhttp.open("POST", "metadata-generator.php", true);
+//            xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+//            xmlhttp.send("action=getPendingCommentIds");
+//            
+//            //return commentCounts;
+//        }
             
             
         //getInitialCommentCounts();

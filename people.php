@@ -94,7 +94,7 @@ if ($result->num_rows > 0) {
                             <td style="text-align:left;"><?= $row["name"]; ?></td>
                             <td style="text-align:left;"><?= ($row["auto_detected"] == 1) ? "Auto-Detected" : "Manually Entered"; ?></td>
                             <td style="text-align:left;"><span title="<?= $row["long_date1"] . ", " . $f->format($row["long_date2"]); ?>"><?= $row["short_date"]; ?></span></td>
-                            <td style="text-align:right;"><button type="button" class="btn btn-outline-dark btn-sm" style="font-weight: 400; font-family: 'Permanent Marker', cursive;">Find Comments</button> <button type="button" class="btn btn-outline-danger btn-sm" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClickConfirm('people.php?action=delete&id=<?= $row["id"]; ?>', 'Are you sure you want to delete <?= $row["name"]; ?>?')">Delete Person</button></td>
+                            <td style="text-align:right;"><button type="button" class="btn btn-outline-dark btn-sm" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClick('search.php?people-text=<?= $row["name"]; ?>');">Find Comments</button> <button type="button" class="btn btn-outline-danger btn-sm" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClickConfirm('people.php?action=delete&id=<?= $row["id"]; ?>', 'Are you sure you want to delete <?= $row["name"]; ?>?')">Delete Person</button></td>
                           </tr>
                           <?php
                           }
