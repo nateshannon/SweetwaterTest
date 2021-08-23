@@ -247,9 +247,6 @@ if ($result->num_rows > 0) {
     
 </script>
     
-    
-
-
 <?php
 $conn->close();
 require_once(__DIR__ . '/footer.php');

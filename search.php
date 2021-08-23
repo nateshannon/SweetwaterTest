@@ -8,14 +8,8 @@ require_once(__DIR__ . '/common.php');
 require_once(__DIR__ . '/header.php');
 
 
-
-
-//$sql_candy = "SELECT id, primary_color, secondary_color FROM candy WHERE";
-
-
 $sql_select_count = "SELECT count(orderid) AS CountOfRecords FROM sweetwater_test";
 $sql_select_fields = "SELECT sw.*, DATE_FORMAT(sw.shipdate_expected, '%b. %D, %Y') AS shipdate_expected_short, (sw.shipdate_expected > '1970-01-02') AS has_ship_date, (SELECT count(id) FROM candy_assoc WHERE orderid=sw.orderid) AS candy_count, (SELECT count(id) FROM people_assoc WHERE orderid=sw.orderid) AS people_count FROM sweetwater_test sw";
-
 
 $sql_where = " WHERE metadata_generated=1 "; // only include comments that have been processed
 
@@ -57,10 +51,8 @@ if (!empty($_GET)) {
     
     // WHERE CLAUSE
     if (isset($_GET["people-text"])) {
-        //$newCandyName = filter_var($_POST['candyName'], FILTER_SANITIZE_STRING);
         $filterPeopleText = filter_var($_GET['people-text'], FILTER_SANITIZE_STRING);
-        $filterPeopleText = preg_replace("/[^A-Za-z0-9\ \,\.\"\(\)\'\-]/", "", $filterPeopleText);
-        
+        $filterPeopleText = preg_replace("/[^A-Za-z0-9\ \,\.\"\(\)\'\-]/", "", $filterPeopleText);        
         if (strlen($filterPeopleText) > 0) {
             $peopleList = explode(",", $filterPeopleText);
             $peopleLookupWhere = "WHERE ";
@@ -79,15 +71,10 @@ if (!empty($_GET)) {
                 $sql_where .= " AND orderid IN (SELECT orderid FROM people_assoc WHERE peopleid IN (" . $sql_peopleLookup . "))";
             }
         }
-        
-        //echo "People Count (" . $peopleList . "): " . count($peopleList);
-        //print_debug($peopleList);
-        
     }
     if (isset($_GET["candy-text"])) {
         $filterCandyText = filter_var($_GET['candy-text'], FILTER_SANITIZE_STRING);
         $filterCandyText = preg_replace("/[^A-Za-z0-9\ \,\!\.\?\'\-\&]/", "", $filterCandyText);
-        
         if (strlen($filterCandyText) > 0) {
             $candies = explode(",", $filterCandyText);
             $candyLookupWhere = "WHERE ";
@@ -105,12 +92,10 @@ if (!empty($_GET)) {
                 $sql_candyLookup = "SELECT id FROM candy " . $candyLookupWhere;
                 $sql_where .= " AND orderid IN (SELECT orderid FROM candy_assoc WHERE candyid IN (" . $sql_candyLookup . "))";
             }
-        }
-        
+        }        
     }
     if (isset($_GET["keyword-text"])) {
         $filterKeywordText = filter_var($_GET['keyword-text'], FILTER_SANITIZE_STRING);
-        //$filterKeywordText = preg_replace("/[^A-Za-z0-9\ \,\.]/", "", $filterKeywordText);        
         $sql_where .= " AND comments LIKE '%" . $filterKeywordText . "%'";        
     }
     if (isset($_GET["ship-date-start"])) {
@@ -174,30 +159,21 @@ if (!empty($_GET)) {
 
 }
 
-//echo $sql_where;
-
 $sql_select_fields .= $sql_where;
 $sql_select_count .= $sql_where;
 
 $sql_select_fields .= " ORDER BY " . $sortField . " " . $sortDirection;
 $sql_select_fields .= " LIMIT " . (($page_current - 1) * $page_size) . ", " . $page_size;
 
-//echo $sql_select_fields;
-
 function is_box_checked($field, $value) {
-    $result = false;
-    
+    $result = false;    
     if (isset($_GET[$field])) {
         if ($_GET[$field] == $value) {
             $result = true;
         }
-    }
-    
+    }    
     return $result;
 }
-
-
-
 
 ?>
 
@@ -406,8 +382,6 @@ $prev_page = -1;
 $next_page = -1;
 $total_pages = -1;
 $total_records = -1;
-//$page_current = 1;
-//$page_size = 8;
 
 if ($result_count->num_rows == 1) {
     $total_records = $result_count->fetch_assoc();    
@@ -415,14 +389,7 @@ if ($result_count->num_rows == 1) {
     // INVALID SITUATION, should die();
 }
 
-
-//$total_pages = intdiv($total_records["CountOfRecords"], $page_size);
 $total_pages = ceil($total_records["CountOfRecords"] / $page_size);
-
-
-
-//6
-//$total_pages = 12;
 
 if ($page_current > $total_pages) {
     $page_current = $total_pages;
@@ -439,14 +406,6 @@ if (($page_current - 1) > 0) {
     $prev_page = ($page_current - 1);
 }
 
-
-//$temp = array();
-//$temp[] = array("page_current" => $page_current,
-//    "prev_page" => $prev_page,
-//    "next_page" => $next_page);
-
-//print_debug($temp);
-
 $page_proximity = 4;
 $page_range_size = (($page_proximity * 2) + 1);
 $page_range_start = -1;
@@ -457,8 +416,7 @@ $min_page = $page_current - $page_proximity;
 
 if ($max_page > $total_pages) {
     $offset = $max_page - $total_pages;
-    $max_page = $total_pages;
-    
+    $max_page = $total_pages;    
     $min_page = $min_page - $offset;
 }
 
@@ -474,15 +432,9 @@ if ($min_page < 1) {
     $min_page = 1;
 }
 
-//echo "total pages: " . $total_pages . ", page range: " . $page_range_size . "<br>";
-//echo $min_page . " - " . $page_current . " - " . $max_page . "<br>";
-
-
-
 if ($result->num_rows > 0) {
     // FOUND RESULTS
-    
-
+   
 ?>
     
     
@@ -504,17 +456,13 @@ while($row = $result->fetch_assoc()) {
                . "INNER JOIN candy_assoc ca ON ca.candyid = c.id "
                . "WHERE ca.orderid = " . $row["orderid"];
         $candy_result = mysqli_query($conn, $sql_candy);
-        //echo $sql_candy;
         if ($candy_result->num_rows > 0) {
             while($candy_row = $candy_result->fetch_assoc()) {
                 // Note: metaphone matches won't be found
-                
                 $commentBody = preg_replace("/(" . $candy_row["name"] . ")/i", "<span style=\"color:#fff;background-color:#" . $candy_row["primary_color"] . ";box-shadow:#" . $candy_row["secondary_color"] . " 2px 0px 1px, #" . $candy_row["secondary_color"] . " -2px 0px 1px, #" . $candy_row["secondary_color"] . " 0px 2px 1px, #" . $candy_row["secondary_color"] . " 0px -2px 1px;text-shadow:#000 1px 0px 0px, #000 -1px 0px 0px, #000 0px 1px 0px, #000 0px -1px 0px;border-radius:5px;font-weight:700;\">&nbsp;$1&nbsp;</span>", $commentBody);
-                
             }
         }
-    }
-    
+    }    
     
     // Highlight People
     if ($row["people_count"] > 0) {
@@ -526,7 +474,7 @@ while($row = $result->fetch_assoc()) {
         if ($people_result->num_rows > 0) {
             while($people_row = $people_result->fetch_assoc()) {
                 // Note: metaphone matches won't be found
-                // Strip off non-word chars from beginning and end.
+                // TODO: Strip off non-word chars from beginning and end.
                 
                 $color1 = "000000";
                 $color2 = "FFFFFF";
@@ -550,15 +498,11 @@ while($row = $result->fetch_assoc()) {
                     $swTextDec1 = "<i class=\"fas fa-award\" style=\"margin-left:0.0em;margin-right:0.0em;font-size:1.0em;\"></i>&nbsp;<span style=\"text-decoration: none;text-decoration-color: #FFFFFF;text-decoration-thickness: 1px;\">";
                     $swTextDec2 = "</span>";
                 }
-                
-                
                 $commentBody = preg_replace("/(" . $people_row["name"] . ")/i", "<span class=\"" . $peopleClass . " progress-bar-striped progress-bar-animated\" style=\"color:#fff;background-color:#" . $color1 . ";box-shadow:" . $swShadow . "#" . $color2 . " 2px 0px 1px, #" . $color2 . " -2px 0px 1px, #" . $color2 . " 0px 2px 1px, #" . $color2 . " 0px -2px 1px;text-shadow:#000 1px 0px 0px, #000 -1px 0px 0px, #000 0px 1px 0px, #000 0px -1px 0px;border-radius:5px;font-weight:700;" . $swFont . "\">&nbsp;" . $swTextDec1 . "$1" . $swTextDec2 . "&nbsp;</span>", $commentBody);
-                
             }
         }        
     }
-    
-    
+
     $commentCallWanted = "";
     $commentCallCompleted = "";
     $commentSignatureRequired = "";
@@ -571,20 +515,14 @@ while($row = $result->fetch_assoc()) {
     if ($row["require_signature"] == 1) {
         $commentSignatureRequired = " checked";
     }
-    
-                      
+                
 ?>
                     
-                                     
-                    
-                  
-                    
-                      
+           
         <div class="col card-group">              
             <div class="card bg-light text-dark mb-3" style="max-width: 18rem;">
               <div class="card-header bg-primary progress-bar-striped text-light">#<?= $row["orderid"]; ?></div>
               <div class="card-body">
-                <!--<h5 class="card-title">Primary card title</h5>-->
                 <p class="card-text"><?= $commentBody ?></p>
               </div>
               <div class="card-header">
@@ -625,79 +563,69 @@ while($row = $result->fetch_assoc()) {
 } else {
     // NO RESULTS
     
-    
-    
 }
 ?>
                       
 </div> <!-- Each Result -->
                   
 
-<div class="progress-bar-striped" style="background-color:#eeeeee;padding:20px 10px 5px 10px; border-bottom:4px solid #D61721;border-bottom-left-radius: 26px;border-bottom-right-radius: 26px; border-top:4px solid #0172B9;border-top-left-radius: 26px;border-top-right-radius: 26px;">
-    
-        <nav aria-label="...">
-            <ul class="pagination justify-content-center">
-              <!--<li class="page-item disabled">
-                <span class="page-link">Previous</span>
-              </li>-->
-              <li class="page-item">
-                <a class="page-link" href="#" onclick="prevPage();">Previous</a>
-              </li>
-              
-              <?php
-              if ($page_current > 1 && $min_page > 1) {
-              ?>
-              <li class="page-item">
-                <a class="page-link" href="#" onclick="navPage(1);">First</a>
-              </li>
-              <?php
-              }
-              
-              
-              
-              for ($p = $min_page; $p <= $max_page; $p++) {
-                if ($p == $page_current) {
-                ?>
-                    <li class="page-item active " aria-current="page">
-                      <span class="page-link"><?=$p?></span>
-                    </li>
-                <?php  
-                } else {
-                ?>
-                    <li class="page-item"><a class="page-link" href="#" onclick="navPage(<?=$p?>);"><?=$p?></a></li>
-                <?php  
-                }                            
-              }
-              
-              if ($max_page < $total_pages) {
-              ?>
-              <li class="page-item">
-                <a class="page-link" href="#" onclick="navPage(<?= $total_pages?>);">Last</a>
-              </li>
-              <?php
-              }              
-              ?>
-              
-              
-   
-              
-              <li class="page-item">
-                <a class="page-link" href="#" onclick="nextPage();">Next</a>
-              </li>
-            </ul>
-          </nav>
-      
-</div>
+                    <div class="progress-bar-striped" style="background-color:#eeeeee;padding:20px 10px 5px 10px; border-bottom:4px solid #D61721;border-bottom-left-radius: 26px;border-bottom-right-radius: 26px; border-top:4px solid #0172B9;border-top-left-radius: 26px;border-top-right-radius: 26px;">
+                        <nav aria-label="...">
+                            <ul class="pagination justify-content-center">
+                              <!--<li class="page-item disabled">
+                                <span class="page-link">Previous</span>
+                              </li>-->
+                              <li class="page-item">
+                                <a class="page-link" href="#" onclick="prevPage();">Previous</a>
+                              </li>
+
+                              <?php
+                              if ($page_current > 1 && $min_page > 1) {
+                              ?>
+                              <li class="page-item">
+                                <a class="page-link" href="#" onclick="navPage(1);">First</a>
+                              </li>
+                              <?php
+                              }
 
 
-                </div> <!-- Search Results Div -->
-                
+
+                              for ($p = $min_page; $p <= $max_page; $p++) {
+                                if ($p == $page_current) {
+                                ?>
+                                    <li class="page-item active " aria-current="page">
+                                      <span class="page-link"><?=$p?></span>
+                                    </li>
+                                <?php  
+                                } else {
+                                ?>
+                                    <li class="page-item"><a class="page-link" href="#" onclick="navPage(<?=$p?>);"><?=$p?></a></li>
+                                <?php  
+                                }                            
+                              }
+
+                              if ($max_page < $total_pages) {
+                              ?>
+                              <li class="page-item">
+                                <a class="page-link" href="#" onclick="navPage(<?= $total_pages?>);">Last</a>
+                              </li>
+                              <?php
+                              }              
+                              ?>
+
+
+
+
+                              <li class="page-item">
+                                <a class="page-link" href="#" onclick="nextPage();">Next</a>
+                              </li>
+                            </ul>
+                          </nav>      
+                    </div>
+
+
+                </div> <!-- Search Results Div -->                
                 </div> <!-- bodySection Div -->
-                
-                
-                
-                
-                
 
             </div>
             <div class="col-lg-2">
@@ -710,12 +638,10 @@ while($row = $result->fetch_assoc()) {
     
     
     function nextPage() {
-        //alert("<?= $next_page; ?>");
        filterComments(<?= $next_page; ?>);
     }
     
     function prevPage() {
-        //alert("<?= $prev_page; ?>");
        filterComments(<?= $prev_page; ?>);
     }
     
@@ -736,13 +662,10 @@ while($row = $result->fetch_assoc()) {
         setTimeout("fadeSaved(" + orderid + ", 100, 10, 100);", 1000);
     }
     
-    function fadeSaved(orderid, opacity, stepSize, stepDelay) {
-        
+    function fadeSaved(orderid, opacity, stepSize, stepDelay) {        
         if (opacity > 0) {   
-            document.getElementById('save-notice-call-' + orderid).style.opacity = Number.parseFloat((opacity / 100)).toFixed(2);
-            
-            setTimeout("fadeSaved(" + orderid + ", " + (opacity - stepSize) + ", " + stepSize + ", " + stepDelay + ");", stepDelay);
-            
+            document.getElementById('save-notice-call-' + orderid).style.opacity = Number.parseFloat((opacity / 100)).toFixed(2);            
+            setTimeout("fadeSaved(" + orderid + ", " + (opacity - stepSize) + ", " + stepSize + ", " + stepDelay + ");", stepDelay);            
         } else {
             setTimeout("clearSaved(" + orderid + ");", 100);
         }
@@ -753,34 +676,20 @@ while($row = $result->fetch_assoc()) {
     }
     
     function completeCallToggle(orderId) {
-        //call-completed-
         var xmlhttp = new XMLHttpRequest();
-        
-        
-        
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                //var jsonResponse = xmlhttp.responseText;
                 var jsonResponse = JSON.parse(xmlhttp.responseText);
-                //alert(jsonResponse["new_call_completed"]);
-                
-                //alert(document.forms['filter-form'].elements['call-completed'].value);
                 if (document.forms['filter-form'].elements['call-completed'].value != "opt") {
                     //results set may be stale now
                     if (confirm("The update you processed has altered current query results. Click OK to refresh.")) {
                         filterComments(1);
                     }
-                    //document.getElementById('filter-form').submit();
                 } else {
                     flashSaved(orderId);
                 }
-                //console.log("xmlhttp.responseText: " + xmlhttp.responseText);
-                //alert(jsonResponse);
-                //updateComment(commentId, jsonResponse["metadata_status"], jsonResponse["metadata_message"]);
-                //document.getElementById("call-completed-" + orderId).disabled = true;
             }
         }
-
         xmlhttp.open("POST", "metadata-generator.php", true);
         xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xmlhttp.send("action=completeCallToggle&orderid=" + orderId);

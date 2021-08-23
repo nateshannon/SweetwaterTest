@@ -6,8 +6,6 @@ require_once(__DIR__ . '/config.php');
 require_once(__DIR__ . '/conn.php');
 require_once(__DIR__ . '/common.php');
 
-
-
 if (!empty($_GET)) {
     if (isset($_GET['action']) && isset($_GET['id'])) {
         if ($_GET['action'] == "delete") {
@@ -27,7 +25,6 @@ if (!empty($_GET)) {
     }
 }
 
-
 if (!empty($_POST)) {
     if (isset($_POST['personName'])) {
     
@@ -46,7 +43,6 @@ if (!empty($_POST)) {
                 
     }
 }
-
 
 require_once(__DIR__ . '/header.php');
 ?>
@@ -68,7 +64,6 @@ require_once(__DIR__ . '/header.php');
                     
                     
 <?php
-        
 
 $f = new NumberFormatter("en", NumberFormatter::SPELLOUT);
 $result = mysqli_query($conn, 'SELECT *, DATE_FORMAT(created_on, "%b. %D @ %l:%i%p") AS short_date, DATE_FORMAT(created_on, "%W, the %D day of %M, in the year of our Lord") AS long_date1, DATE_FORMAT(created_on, "%Y") AS long_date2 FROM people ORDER BY name ASC');
@@ -135,7 +130,6 @@ if ($result->num_rows > 0) {
                         <label for="personName" class="form-label">Name</label>
                         <input type="text" class="form-control" id="personName" name="personName">
                       </div>
-                      
 
               </div>
               <div class="modal-footer">

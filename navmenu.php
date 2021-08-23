@@ -1,4 +1,7 @@
-<div class="navBar">
+<?php
+if ($showMenu) {
+?>
+<div class="navBar">    
     <?php if ($currentNavButton == "home") { ?>
     <button type="button" class="btn btn-dark sweetwaterLogoType" style="font-weight: 700; font-family: 'Permanent Marker', cursive;" onclick="navClick('index.php');">Home</button> 
     <?php } else { ?>
@@ -23,5 +26,10 @@
     <button type="button" class="btn btn-dark sweetwaterLogoType" style="font-weight: 700; font-family: 'Permanent Marker', cursive;" onclick="navClick('metadata.php');">Metadata</button>
     <?php } else { ?>
     <button type="button" class="btn btn-light sweetwaterLogoType" style="font-weight: 400; font-family: 'Permanent Marker', cursive;" onclick="navClick('metadata.php');">Metadata</button>
-    <?php } ?>    
+    <?php } ?>       
 </div>
+<?php
+} else {
+    
+}
+?>
