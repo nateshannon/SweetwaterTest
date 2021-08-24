@@ -14,5 +14,10 @@ This specific code was developed using:
 
 ### Project Requirements
 
+Sweetwater Development Management said:
+
+> When placing orders on a website, we provide a field for customers to add a quick comment to tell us something we should know about them or their order.
+> We're supplying you a MySQL table with these various comments and want to see your approach the following tasks.
+
 - [x] Task 1 - Write a report that will display the comments from the table
 - [x] Task 2
