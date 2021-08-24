@@ -12,9 +12,7 @@ $databaseTablesPeopleAssoc = FALSE;
 if ($connect = mysqli_connect($dbServerName, $dbUsername, $dbPassword)) {
     $conn = new mysqli($dbServerName, $dbUsername, $dbPassword, $dbName);
     
-    if ($conn->connect_error) {
-      //die("Connection failed: " . $conn->connect_error);
-    } else {
+    if (!$conn->connect_error) {
         if ($result = mysqli_query($conn, "SHOW TABLES LIKE 'sweetwater_test'")) {
             if($result->num_rows == 1) {
                 $databaseTablesSweetwaterTest = TRUE;
@@ -54,26 +52,8 @@ if ($connect = mysqli_connect($dbServerName, $dbUsername, $dbPassword)) {
                 exit;
             }
         }
-    }
-    
-    
-    
-} else {
-    //die("Unable to Connect to '$dbServerName'");
+    }    
 }
-
-
-
-//mysqli_select_db($dbName) or die("Could not openxxx the db '$dbName'");
-
-
-//die();
-
-
-
-
-
-
 
 
 ?>
