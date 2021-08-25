@@ -58,7 +58,7 @@ There are a number of features that I would like to implement, but forced myself
 
 ## How To Use This Project
 
-While much of this project should be self-explanatory, below is a list of feature and how you use them.
+While much of this project should be self-explanatory, below is a list of features and how you use them.
 
 Feature | Purpose | Location | Usage
 ------- | ------- | -------- | -----
