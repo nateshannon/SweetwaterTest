@@ -71,10 +71,12 @@ New Candy/New Person | Open the dialog to add a new candy or person to the syste
 Search | Find comments. | Search navigation tab at the top of the page. | You specify the criteria by which to search/filter the comments and click the `Filter Comments` button.
 Search Results | Display and navigate through comments returned by the search. | Beneath the search criteria, after clicking `Filter Comments`. | Comments are displayed, eight at a time, and the full list of returned results can be navigated using the pagination below the results.
 Search Result | Display a single comment result. | One item among the list of all search results. | Blue header contains the order ID#. Next, at the top of the gray box, the comment body is shown. At the bottom of the gray box, the switches specifying Call Wanted, Require Signature, and Call Completed are shown. Call Completed only displays if Call Wanted is set to yes. If detected, the expected ship date is shown in a black footer, and removed from the comment body. Finally, candies and people detected in the comment are highlighted. Sweetwater Sales staff are highlighted with a striped, blue background, black border, a red underline, and a person icon. Referrers are shown in yellow with an award ribbon icon. Candies are displayed using the primary and secondary color specified on the Candy List.
+Call Completed | Specify that the call requested by the customer has been made. | On a search result, which is flagged as Call Wanted. | Clicking Call Completed will toggle the status, and save the change to the database. A "Saved" message will flash and then fade-out after a successful save.
+
 
 
 ## Notes
 
-There are a few things about the project that need to have attention brought to them.
-
-* 
+* Under Other Requirements & Considerations, regarding #5. Bootstrap was used for layout purposes, after recieving approval.
+* Under Other Requirements & Considerations, regarding #8. This project was completed fairly quickly in terms of time spent writing code, approximately 20 hours. But took a few weeks as the calendar goes, due to limitations on my time due to my job and lengthy commute.
+* Under Other Requirements & Considerations, regarding #10. I've been continually coming up with ways to refactor and improve this. So, I had to force myself to stop working on it, and release it as-is.
