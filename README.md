@@ -49,8 +49,32 @@ The shipdate_expected field is currently populated with no date (0000-00-00). So
 
 ## Project Design Concepts
 
-At first glance, writing a report the fulfilled the basic requirements as defined above seemed pretty straight-forward. But then I started to think about how such a project could be used in a real-world situation, and found that I was expanding the project requirements a bit in order to add features that I would want in such a system. Take the requirement of identifying comments about candy, for instance; I found myself needing a way to define what candy is, handle misspelling of candy types, and efficiently search for comments about candy.
+At first glance, writing a report the fulfilled the basic requirements as defined above seemed straight-forward and sufficient. But then I started to think about how such a project could be used in a real-world situation, and found I was expanding the project requirements a bit in order to add features I would want in such a system. Take the requirement of identifying comments about candy, for instance; I found myself needing a way to define what candy is, handle misspelling of candy types, and efficiently search for comments about candy.
 
 I also added some features that were not specified in the requirements, but were interesting, useful, or fun. Things like identifying people mentioned in the comments, determining their role in relation to the comment, highlighting candy with appropriate colors, pre-processing comments to increase search accuracy and efficiency, allowing system users to track call-backs made on comments which requested a phone call, implementing simple animations to show when async javascript operations have completed, and building a comment search page that allows easy filtering of all comments in the system.
 
-There are a number of features that I would like to implement, but forced myself to skip for now in the interest of releasing the project more quickly, since the project does meet all of the requirements in its current state. These forgone, but potential future enhancements, include such things as ajax-enabled search result pagination.
+There are a number of features that I would like to implement, but forced myself to skip for now in the interest of releasing the project now, since the project meets all of the requirements in its current state and I need to stop adding/tweaking features and just get the project back to Sweetwater for evaluation. These forgone, but potential future enhancements, include such things as ajax-enabled search result pagination, increased name detection system accuracy (perhaps using machine learning), user preferences (results per page, default search filters, etc), a method to enter or import new comments, and a way to export search results as a printer-friendly PDF.
+
+
+## How To Use This Project
+
+While much of this project should be self-explanatory, below is a list of feature and how you use them.
+
+Feature | Purpose | Location | Usage
+------- | ------- | -------- | -----
+Metadata | Pre-processes comments. Parses text into boolean flags and dates. Builds relationships between comments and detected keywords, increasing search efficiency. Allows searches to find misspelled keywords. ___Note:__ Metadata MUST be generated before comments will appear in search results._ | Metadata navigation tab at the top of the page. | If there are comments that have not been processed, clicking `Process Pending Comments` will initiate the metadata generation process. `Clear Metadata` will erase the current metadata and reset parse values to their defaults. After making changes to the lists of candy or people, you need to clear the metadata, and re-generate it using `Process Pending Comments`.
+Candy List | Display list of candy types defined in the system. | Candy navigation tab at the top of the page. | This is a list of known candies that will be detected when generating metadata.
+Delete Candy/Person | Remove candy or person from the system. | Red button on the right side of Candy or Person List. | Clicking the button will prompt for confirmation, and if given, will remove the candy or person from the system.
+Candy Color | Sets the primary and secondary color of a candy type. | The color-picker boxes on the Candy List | Clicking a color-picker box will open a color selection dialog. After choosing a color, clicking outside the dialog will cause the color to be saved. The color box will brightly flash yellow, then fade out, showing the color has been saved.
+Find Comments | Shortcut to search results related to the candy or person on which the button was clicked. | Black button on the right side of the Candy or People list. | Clicking the button opens the search results, pre-filtered to only show results for the clicked candy or person.
+New Candy/New Person | Open the dialog to add a new candy or person to the system. | Blue button at the top, right side or the Candy or People list. | Clicking the button will open a form allowing you to specify the name of a new candy or person, click Create to save the new entry.
+Search | Find comments. | Search navigation tab at the top of the page. | You specify the criteria by which to search/filter the comments and click the `Filter Comments` button.
+Search Results | Display and navigate through comments returned by the search. | Beneath the search criteria, after clicking `Filter Comments`. | Comments are displayed, eight at a time, and the full list of returned results can be navigated using the pagination below the results.
+Search Result | Display a single comment result. | One item among the list of all search results. | Blue header contains the order ID#. Next, at the top of the gray box, the comment body is shown. At the bottom of the gray box, the switches specifying Call Wanted, Require Signature, and Call Completed are shown. Call Completed only displays if Call Wanted is set to yes. If detected, the expected ship date is shown in a black footer, and removed from the comment body. Finally, candies and people detected in the comment are highlighted. Sweetwater Sales staff are highlighted with a striped, blue background, black border, a red underline, and a person icon. Referrers are shown in yellow with an award ribbon icon. Candies are displayed using the primary and secondary color specified on the Candy List.
+
+
+## Notes
+
+There are a few things about the project that need to have attention brought to them.
+
+* 
